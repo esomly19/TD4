@@ -147,6 +147,8 @@ export default {
         this.uuid=result.data.user.uuid;
           this.name=result.data.user.firstname;
                 this.lastname=result.data.user.lastname;
+      localStorage.setItem("lastname", JSON.stringify(this.lastname));
+        localStorage.setItem("name", JSON.stringify(this.firstname));
      localStorage.setItem("uuid", JSON.stringify(this.uuid));
           this.$navigateTo(Home ,{
   transition: {},
@@ -204,6 +206,45 @@ export default {
     focusPassword() {
       this.$refs.password.nativeView.focus();
     },
+    checkToken(){
+
+       if (localStorage.getItem("token")) {
+ this.processing = true;
+        this.token = JSON.parse(localStorage.getItem("token"));
+        this.uuid = JSON.parse(localStorage.getItem("uuid"));
+        this.lastname=JSON.parse(localStorage.getItem("lastname"));
+       this.name=JSON.parse(localStorage.getItem("name"));
+ axios({
+        method: "post",
+        url: "https://api.todolist.sherpa.one/users/check-token",
+            headers: { Authorization: `Bearer ${this.token}`
+        },
+      })
+        .then(result => {
+ this.processing = false;
+     this.$navigateTo(Home ,{
+  transition: {},
+  transitioniOS: {},
+  transitionAndroid: {},
+
+  props: {
+    token: this.token,
+    uuid: this.uuid,
+    nom : this.lastname,
+    prenom: this.name
+   }} );
+       
+        })
+        .catch(err => {
+  console.log("ouille");
+ this.processing = false;
+        })
+        .finally(() => {
+         this.processing = false;
+        });    
+
+       
+  }},
    
     alert(message) {
       return alert({
@@ -213,7 +254,7 @@ export default {
       });
     }
   },mounted() {
-
+  this.checkToken();
     if(!global.btoa) {
         global.btoa = encode;
     }

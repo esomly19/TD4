@@ -2,6 +2,7 @@
   <Page>
 <ActionBar>
   <ActionItem text="Add todo"  @tap="onAddTap"></ActionItem>
+  <ActionItem text="Sort" @tap="sort"></ActionItem>
 </ActionBar>
    <BottomNavigation selectedIndex="0">
 
@@ -24,7 +25,7 @@
 
    <ListView for="todo in todos" @itemTap="onItemTap">
     <v-template>
-        <TodoItem :item="todo" :method="getTodos">
+        <TodoItem :item="todo" :method="getTodos" @toggleDone="onToggleDone">
         </TodoItem> </v-template></ListView>
   
 </StackLayout>
@@ -37,9 +38,10 @@
  
           <Label > Compte : {{nom}} {{prenom}}</Label>
         <Button @tap="resetPassword">Reset de mot de passe </Button>
+         <Button @tap="disconnect">Déconnexion </Button>
           
      </StackLayout>
-
+    
    </GridLayout>
       </TabContentItem>
     
@@ -52,6 +54,7 @@
 
 import axios from "axios";
 import AddItem from "./AddItem";
+import Login from "./LoginPage";
 import TodoItem from "./TodoItem";
 import * as btoa from 'btoa';
 import {encode, decode} from "base-64";
@@ -60,7 +63,7 @@ import Detail from "./Detail";
 export default {
  components: { AddItem,TodoItem,Detail },
   props: ['token','uuid','nom','prenom'],
-   data() {  return {Reponse:"",todos:"", networkStatus: ""}},
+   data() {  return {Reponse:"",todos:"", networkStatus: "",  networkStatus: ""}},
   methods:{
  
   ok(){console.log(this.token);
@@ -72,6 +75,28 @@ onItemTap(args) {
       this.$navigateTo(Detail, {
         props: { item: args.item, method:this.getTodos() }
       });
+    },
+     onToggleDone(item) {
+      
+      axios({
+        method: "patch",
+        url: "https://api.todolist.sherpa.one/users/"+this.uuid+"/todos/"+item.uuid,
+        headers: { Authorization: `Bearer ${this.token}`
+        },
+    data:{ "content": item.name, "done":!item.done}
+      })
+        .then(result => {
+          console.log(result.data);
+
+        })
+        .catch(err => {
+          console.error(err.response.request._response);
+       
+                 console.log(err);
+        })
+        .finally(() => {
+        this.getTodos();
+        });  
     },
  onAddTap() {
       const newId = new Date().getTime();
@@ -116,6 +141,9 @@ onItemTap(args) {
 
 
 }, 
+   sort() {
+      return this.todos.sort((x, y) => x.done - y.done);
+    },
 resetPassword(){
   axios({
         method: "post",
@@ -134,6 +162,12 @@ resetPassword(){
 
         }); 
 
+},disconnect(){
+   localStorage.removeItem('token');
+     localStorage.removeItem('uuid');
+   localStorage.removeItem('lastname');
+   localStorage.removeItem('name');
+  this.$navigateTo(Login );
 }
   },
 mounted(){

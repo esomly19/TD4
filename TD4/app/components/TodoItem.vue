@@ -2,6 +2,13 @@
  <StackLayout orientation="horizontal" width="500" height="50" >
     <Label
       :text="item.content"
+        :class="{ 'line-through': item.done }"
+      width="100"
+    />
+     <Label
+      @tap="toggle"
+      :text="statusText"
+
       width="100"
     />
        <Label   v-if="item.done" @tap="supprimer(item)">🗑️</Label>
@@ -23,9 +30,15 @@ export default {
     };
   },
   computed: {
-   
+    statusText: function() {
+      return this.item.done ? "Done" : "Not done";
+    }
   },
   methods: {
+   toggle: function() {
+      //this.status = this.status === 0 ? 1 : 0;
+      this.$emit("toggleDone", this.item);
+    },
    supprimer: function(element) {
 confirm("Voulez vous vraiment supprimer " + this.item.content + " ?").then(
         result => {
@@ -59,3 +72,18 @@ console.log("FAIL");
 
 };
 </script>
+<style lang="scss" scoped>
+
+  Label {
+    color: black;
+    font-size: 20em;
+  }
+  .line-through {
+    text-decoration: line-through;
+  }
+
+
+label {
+  background-color: darkslategrey;
+}
+</style>
