@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@babel/core": "~7.1.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "@babel/preset-env": "~7.1.0",
     "babel-loader": "~8.0.0",
     "nativescript-dev-webpack": "~1.4.0",
